@@ -1,4 +1,4 @@
-# Contributor Covenant Code of Conduct
+# Make Data Count Code of Conduct
 
 ## Our Pledge
 
