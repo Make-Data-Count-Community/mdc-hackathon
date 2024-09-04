@@ -59,7 +59,7 @@ def fetch_title_from_crossref(publication_url):
 
 # Use sys.stdin for input and sys.stdout for output
 reader = csv.DictReader(sys.stdin)
-fieldnames = reader.fieldnames + ['status', 'crossref-exists', 'doi-exists']  # Add the new 'status' field
+fieldnames = reader.fieldnames + ['crossref-status', 'doi-exists']  # Add the new fields
 writer = csv.DictWriter(sys.stdout, fieldnames=fieldnames)
 
 # Write the header to stdout
@@ -78,15 +78,14 @@ for row in reader:
             else:
                 print(f"No title found for {publication_url}", file=sys.stderr)
             if status == '404':
-                row['crossref-exists'] = 'No'
                 doi_exists = check_doi_existence(publication_url)
                 if doi_exists:
                     row['doi-exists'] = 'Yes'
                 else:
                     row['doi-exists'] = 'No'
-            row['status'] = status  # Update the status in the row
+            row['crossref-status'] = status  # Update the status in the row
     else:
-        row['status'] = ''  # If title is already present, leave status empty
+        row['crossref-status'] = ''  # If title is already present, leave status empty
     
     # Write the updated (or unchanged) row to stdout
     writer.writerow(row)
