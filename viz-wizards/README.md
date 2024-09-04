@@ -8,6 +8,6 @@ Making efficient visualisations for the data corpus.
 - Ross
 - Ashwini
 - Paul
-- kapan
+- Aisha
 
 ### Hackathon Outcome
