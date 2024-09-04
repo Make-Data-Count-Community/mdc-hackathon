@@ -20,6 +20,13 @@ The visualization is divided into multiple dashboards focusing on different ques
 - Research from Europe and the US tends to receive a higher number of citations
 - Examining the most cited datasets by subject area and repository, show that most datasets are from the biological sciences and basic medicine, with chemical and physical sciences also featuring. The most cited datasets are found in the European Nucleotide Archive which would make sense given these house important DNA and RNA information, heavily referenced by research.
 
+### Data Cleanliness Tasks For Future Use
+
+- <CDATA wrappers around some Funders and Journals need to be removed
+- Some repositories are too granular i.e. University of Edinburgh
+- Depending on the source of the data some has funder or affiliation missing
+- Subjects, affiliations, funders need to be denormalised
+- Country extracted from affiliations need to be standardises so not country code and country, i.e. DE and Germany as just Germany
 
 ### Contributors
 
