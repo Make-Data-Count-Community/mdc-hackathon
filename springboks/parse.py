@@ -4,6 +4,28 @@ import subprocess
 import urllib.parse
 import sys
 
+def check_doi_existence(publication_url):
+    # URL encode the publication value
+    encoded_publication_url = urllib.parse.quote(publication_url)
+
+    # Build the curl command to query the DOI
+    curl_command = f"curl -s 'https://doi.org/doiRA/{encoded_publication_url}'"
+
+    try:
+        # Run the curl command
+        result = subprocess.run(curl_command, shell=True, capture_output=True, text=True)
+
+        # Check if the command was successful
+        if result.returncode == 0:
+            # Parse the JSON response
+            data = json.loads(result.stdout)
+            if data and data[0].get('status') == 'DOI does not exist':
+                return False
+    except Exception as e:
+        print(f"Error checking DOI existence: {e}")
+
+    return True
+
 # Function to query Crossref API for the title and status
 def fetch_title_from_crossref(publication_url):
     # URL encode the publication value
@@ -37,7 +59,7 @@ def fetch_title_from_crossref(publication_url):
 
 # Use sys.stdin for input and sys.stdout for output
 reader = csv.DictReader(sys.stdin)
-fieldnames = reader.fieldnames + ['status']  # Add the new 'status' field
+fieldnames = reader.fieldnames + ['status', 'crossref-exists', 'doi-exists']  # Add the new 'status' field
 writer = csv.DictWriter(sys.stdout, fieldnames=fieldnames)
 
 # Write the header to stdout
@@ -55,6 +77,13 @@ for row in reader:
                 row['title'] = title  # Update the title in the row
             else:
                 print(f"No title found for {publication_url}", file=sys.stderr)
+            if status == '404':
+                row['crossref-exists'] = 'No'
+                doi_exists = check_doi_existence(publication_url)
+                if doi_exists:
+                    row['doi-exists'] = 'Yes'
+                else:
+                    row['doi-exists'] = 'No'
             row['status'] = status  # Update the status in the row
     else:
         row['status'] = ''  # If title is already present, leave status empty
