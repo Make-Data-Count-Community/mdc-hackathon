@@ -71,7 +71,8 @@ A website with profile pages for every organization with dataset citations, list
 
 ### Contributors
 
-- Ross
-- Ashwini
-- Paul
-- Aisha
+- Becky Grady
+- Sean McIntyre
+- Juliet Shin
+- Jing Jiang
+- Eric Lopatin
