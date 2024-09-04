@@ -19,7 +19,7 @@ def check_doi_existence(publication_url):
         if response.status_code == 200:
             # Parse the JSON response
             data = response.json()
-            if data and data[0].get('status') == 'DOI does not exist':
+            if data and data[0].get('status') in ['DOI does not exist', 'Invalid DOI']:
                 return False
     except Exception as e:
         print(f"Error checking DOI existence: {e}")
