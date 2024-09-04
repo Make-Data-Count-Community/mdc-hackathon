@@ -1,24 +1,24 @@
 import csv
 import json
-import subprocess
 import urllib.parse
 import sys
+import requests
 
 def check_doi_existence(publication_url):
     # URL encode the publication value
     encoded_publication_url = urllib.parse.quote(publication_url)
 
-    # Build the curl command to query the DOI
-    curl_command = f"curl -s 'https://doi.org/doiRA/{encoded_publication_url}'"
+    # Build the request URL to query the DOI
+    url = f"https://doi.org/doiRA/{encoded_publication_url}"
 
     try:
-        # Run the curl command
-        result = subprocess.run(curl_command, shell=True, capture_output=True, text=True)
-
-        # Check if the command was successful
-        if result.returncode == 0:
+        # Send the GET request
+        response = requests.get(url)
+        
+        # Check if the request was successful
+        if response.status_code == 200:
             # Parse the JSON response
-            data = json.loads(result.stdout)
+            data = response.json()
             if data and data[0].get('status') == 'DOI does not exist':
                 return False
     except Exception as e:
@@ -31,27 +31,27 @@ def fetch_title_from_crossref(publication_url):
     # URL encode the publication value
     encoded_publication_url = urllib.parse.quote(publication_url)
     
-    # Build the curl command to query the Crossref API
-    curl_command = f"curl -s -w '\n%{{http_code}}' 'https://api.crossref.org/works/{encoded_publication_url}' -H 'accept: application/json'"
+    # Build the request URL to query the Crossref API
+    url = f"https://api.crossref.org/works/{encoded_publication_url}"
     
     try:
-        # Run the curl command
-        result = subprocess.run(curl_command, shell=True, capture_output=True, text=True)
+        # Send the GET request
+        response = requests.get(url, headers={'accept': 'application/json'})
         
-        # Split the output to get the JSON response and the HTTP status code
-        response_body, status_code = result.stdout.rsplit('\n', 1)
+        # Get the HTTP status code
+        status_code = response.status_code
         
         # Parse the JSON response
         try:
-            response_json = json.loads(response_body)
+            response_json = response.json()
         except json.JSONDecodeError:
-            return None, status_code
+            return None, str(status_code)
         
         # Extract the title from the response
         if 'message' in response_json and 'title' in response_json['message']:
-            return response_json['message']['title'][0], status_code  # Titles are usually in a list
+            return response_json['message']['title'][0], str(status_code)  # Titles are usually in a list
         
-        return None, status_code  # Return None if no title was found, but include the status code
+        return None, str(status_code)  # Return None if no title was found, but include the status code
     except Exception as e:
         print(f"Error fetching title: {e}", file=sys.stderr)
     
@@ -79,10 +79,7 @@ for row in reader:
                 print(f"No title found for {publication_url}", file=sys.stderr)
             if status == '404':
                 doi_exists = check_doi_existence(publication_url)
-                if doi_exists:
-                    row['doi-exists'] = 'Yes'
-                else:
-                    row['doi-exists'] = 'No'
+                row['doi-exists'] = 'Yes' if doi_exists else 'No'
             row['crossref-status'] = status  # Update the status in the row
     else:
         row['crossref-status'] = ''  # If title is already present, leave status empty
