@@ -2,7 +2,7 @@
 
 ### Members
 
-- nlisgo
+- nlisgo (Nathan Lisgo)
 - Nimphal
 - kaysiz
 
